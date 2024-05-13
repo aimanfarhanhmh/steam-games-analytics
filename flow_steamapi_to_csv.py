@@ -34,6 +34,7 @@ def get_api_response(app_id:str):
     if (response.status_code == '429'):
         time.sleep(10)
         return get_api_response(app_id)
+    # return response.json()[f'{app_id}']['data']
 
     return json.loads(response.text)[f"{app_id}"]['data']
 
