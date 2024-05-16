@@ -46,6 +46,7 @@ def get_api_response(app_id:str) -> dict:
     
     while True:
         response = requests.get(url)
+        print(response.status_code)
         if response.status_code == 200:
             break
         time.sleep(10)
@@ -111,6 +112,7 @@ def flow_ingest_steamapi() -> None:
             continue
 
         dict_gameslist.update(dict_gameinfo)
+        print(f"Sucessfully written data for AppID: {app_id}")
         time.sleep(TIME_SLEEP)
     
     write_to_local(games_appid)
