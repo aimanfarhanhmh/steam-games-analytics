@@ -1,5 +1,4 @@
 *.csv
 .env
 /csv/
-
-/postgres_data/
+/postgresql_data/
