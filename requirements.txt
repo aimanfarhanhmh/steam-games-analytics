@@ -3,3 +3,4 @@ numpy
 requests
 ratelimiter
 sqlalchemy
+psycopg2-binary
