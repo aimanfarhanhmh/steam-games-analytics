@@ -39,10 +39,10 @@ def get_games_list() -> list:
     
     return id_list
 
-def get_api_response(app_id:str) -> dict:
+def get_api_response(app_id:str, language:str = 'english', country:str = 'my') -> dict:
     '''Retrieves API response from url'''
     
-    url = f"https://store.steampowered.com/api/appdetails?appids={app_id}&l=english"
+    url = f"https://store.steampowered.com/api/appdetails?appids={app_id}&l={language}&cc={country}"
     
     while True:
         response = requests.get(url)
@@ -53,7 +53,7 @@ def get_api_response(app_id:str) -> dict:
 
     return json.loads(response.text)
 
-def clean_data(response: dict, app_id: str) -> dict:
+def clean_data(response: dict, app_id: str) -> list:
     '''Normalize API response and filters out unwanted keys'''
     
     try:
@@ -65,57 +65,56 @@ def clean_data(response: dict, app_id: str) -> dict:
                 gamedata_df.loc[:,columns] = np.nan
             else:
                 gamedata_df.loc[:,columns] = df[columns]
-                
-        gamedata_df.index = [app_id]
         
-        return gamedata_df.to_dict(orient='index')
-    
-    # If data doesn't exist (e.g. data is hidden by game developer)
-    # except KeyError:
-    #     gamedata_df = pd.DataFrame(columns=[select_columns])
-        
-    #     # print(f"KeyError for AppID: {app_id}")
-    #     # for columns in select_columns:
-    #     #     gamedata_df.loc[:,columns] = 'A'
-            
-    #     # gamedata_df['steam_appid'] = app_id
-            
-    #     # gamedata_df.set_index(['steam_appid'])
-                
-    #     # gamedata_df.index = [app_id]
-    #     return gamedata_df.to_dict(orient='index')
+        return gamedata_df.values.tolist()
     
     except:
         print(f"Failed to read data for AppID: {app_id}")
         return None
     
-def write_to_local(gameslist: dict) ->None:
+def write_to_local(gameslist: list) ->None:
     '''Write DataFrame into csv locally'''
+    
+    print("Writing gameinfo into CSV file...")
+    
     csv_path = Path('./csv/steamapi_games_list.csv')
     csv_path.parent.mkdir(parents=True, exist_ok=True)
 
-    df = pd.DataFrame(gameslist).T
-    df.to_csv(csv_path, index=False)
+    df = pd.DataFrame(gameslist, columns=select_columns)
     
-def flow_ingest_steamapi() -> None:
+    try:
+        df.to_csv(csv_path, index=False)
+        print("Sucessfully written into CSV file")
+    except Exception as e:
+        print(f"Failed writing into CSV file. Error: {e}")
+    
+def flow_ingest_steamapi(language:str = 'english', country:str = 'my') -> None:
     '''Main flow for ingesting data from Steam API based on game list'''
 
     games_appid = get_games_list()
-    dict_gameslist = {}
+    list_games_tables = []
+    list_fail = []
     
     for app_id in games_appid:
-        response = get_api_response(app_id)
-        dict_gameinfo = clean_data(response, app_id)
+        response = get_api_response(app_id, language, country)
+        list_gameinfo = clean_data(response, app_id)
         
         # skip over current loop if failed to retrieve data
-        if dict_gameinfo == None:
+        if not list_gameinfo:
+            list_fail.append(app_id)
             continue
-
-        dict_gameslist.update(dict_gameinfo)
+        
+        for info in list_gameinfo:
+            list_games_tables.append(info)
+            
         print(f"Sucessfully written data for AppID: {app_id}")
         time.sleep(TIME_SLEEP)
+        
+    print("Failed to retrieve data for AppIDs: ")
+    for failures in list_fail:
+        print(failures)
     
-    write_to_local(games_appid)
+    write_to_local(list_games_tables)
                 
 if __name__ == '__main__':
     flow_ingest_steamapi()
