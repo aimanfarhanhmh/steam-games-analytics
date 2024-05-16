@@ -1,0 +1,32 @@
+services:
+
+  pgdatabase:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=steam_game_analytics
+    volumes:
+      - pg_data:/var/lib/postgresql/data:rw
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "8080:80"
+
+networks:
+  analytics_network:
+    driver: bridge
+
+volumes:
+  pg_data:
+    external: false
+  pgadmin_data:
+    external: false
