@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-TIME_SLEEP = 1.5 # Period of time to sleep im between requests (Steam API limits up to 200 requests per 5 minits; average 1.5 sec per request)
+TIME_SLEEP = 1.5 # Period of time to sleep im between requests (Steam API recommends to average 1.5 sec per request)
 
 # Columns to be filtered out from api response
 select_columns = ['steam_appid',
@@ -31,7 +31,7 @@ def get_games_list() -> list:
     '''Get list of Steam Games's AppID from text file'''
     
     id_list = []
-    with open('txt/games_list.txt') as gameslist:
+    with open('./games_list.txt') as gameslist:
         games = gameslist.readlines()
         for appid in games:
             appid = appid.strip()
@@ -113,8 +113,12 @@ def flow_ingest_steamapi(language:str = 'english', country:str = 'my') -> None:
     print("Failed to retrieve data for AppIDs: ")
     for failures in list_fail:
         print(failures)
+        
+    list_fail = None
     
     write_to_local(list_games_tables)
+    
+    del list_games_tables
                 
 if __name__ == '__main__':
     flow_ingest_steamapi()
