@@ -5,19 +5,17 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-TIME_SLEEP = 1.5 # Period of time to sleep im between requests (Steam API recommends to average 1.5 sec per request)
+TIME_SLEEP = 1 # Period of time to sleep im between requests (Steam API recommends to average 1.5 sec per request)
 
 # Columns to be filtered out from api response
 select_columns = ['steam_appid',
                   'name', 
                   'type', 
+                  'genres.description',
                   'required_age',  
                   'is_free',
                   'price_overview.currency',
                   'price_overview.initial',
-                  'detailed_description', 
-                  'about_the_game', 
-                  'short_description', 
                   'platforms.windows', 
                   'platforms.mac', 
                   'platforms.linux', 
@@ -25,7 +23,10 @@ select_columns = ['steam_appid',
                   'metacritic.score',
                   'achievements.total',
                   'controller_support', 
-                  'release_date.date']
+                  'release_date.date',
+                  'short_description',
+                  'detailed_description', 
+                  'about_the_game']
 
 def get_games_list() -> list:
     '''Get list of Steam Games's AppID from text file'''
