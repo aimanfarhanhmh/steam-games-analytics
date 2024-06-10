@@ -4,3 +4,4 @@
 /postgresql_data/
 notebook/
 logs/
+etl/staging/
