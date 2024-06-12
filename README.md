@@ -1,5 +1,5 @@
-# elt-weather-pipeline
-Data analytics pipeline for Malaysian general 7-day weather forecast.
+# Steam Game Analytics Data Pipeline
+Data pipeline to collect game data from various Steam APIs for analytics.
 
 
 ## Overview of Planned Data Pipeline
